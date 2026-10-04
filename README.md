@@ -66,4 +66,41 @@ does places + contact enrichment in one call.
 - [All 31 collectors](https://quanticdata.io/collectors/) · [Documentation](https://quanticdata.io/docs/)
 - [Is lead generation legal?](https://quanticdata.io/blog/is-lead-generation-legal/)
 
+## Node.js
+
+The same call without Python: Node 18 or newer, no dependencies. See [`places.mjs`](places.mjs):
+
+```bash
+export QUANTICDATA_API_KEY=qd_live_your_key_here
+node places.mjs "dentist" "Austin, TX" 20
+```
+
+## Sample response
+
+A real run from 4 October 2026: `dentist` in `Austin, TX`, three rows requested. These are public business listings. The rows arrive in `payload.results`; one is shown here and the full capture is in [`sample-response.json`](sample-response.json).
+
+```json
+{
+  "rank": 1,
+  "name": "South Austin Dentist",
+  "rating": 4.9,
+  "reviews": 179,
+  "category": "Dentist",
+  "price_level": null,
+  "address": "3901 S Lamar Blvd Ste 480, Austin, TX 78704",
+  "phone": "(737) 437-3801",
+  "website": "southaustindentisttx.com",
+  "hours": null,
+  "service_options": null,
+  "description": null,
+  "latitude": 30.2372985,
+  "longitude": -97.7902045,
+  "place_id": "0x865b4b5e859f967f:0x38deff12e0bdefcb",
+  "data_id": "0x865b4b5e859f967f:0x38deff12e0bdefcb",
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=South%20Austin%20Dentist%203901%20S%20Lamar%20Blvd%20Ste%20480%2C%20Austin%2C%20TX%2078704",
+  "thumbnail": null,
+  "found_by": "dentist Austin, TX"
+}
+```
+
 MIT licensed.
