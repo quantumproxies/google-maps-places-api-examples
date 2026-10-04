@@ -33,7 +33,7 @@ def main() -> None:
             "type": "Feature",
             "geometry": {"type": "Point", "coordinates": [lon, lat]},
             "properties": {k: row.get(k) for k in
-                           ("name", "rating", "reviews", "category", "price_level",
+                           ("name", "rating", "reviews", "category", "hours",
                             "address", "phone", "website", "place_id", "maps_url")},
         })
 
