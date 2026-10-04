@@ -9,8 +9,8 @@ import csv
 
 from client import collect
 
-FIELDS = ["rank", "name", "rating", "reviews", "category", "price_level", "address",
-          "phone", "website", "hours", "service_options", "latitude", "longitude",
+FIELDS = ["rank", "name", "rating", "reviews", "category", "address",
+          "phone", "website", "hours", "open_state", "latitude", "longitude",
           "place_id", "data_id", "maps_url", "found_by"]
 
 

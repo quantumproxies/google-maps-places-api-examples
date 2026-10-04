@@ -2,11 +2,11 @@
 
 The [`google_maps_places` collector](https://quanticdata.io/collectors/google-maps-scraper-api/)
 takes a query and a place ("coffee roasters", "Milan, Italy") and returns typed rows:
-name, rating, review count, category, price level, address, phone, website, opening hours,
+name, rating, review count, category, address, phone, website, opening hours (as text and per day),
 `latitude`/`longitude`, `place_id`, `data_id` and the Maps URL.
 
 No Selenium, no map-tile scrolling, no place-id spelunking. **$0.001 per delivered place**,
-up to 100 per run.
+up to 300 per run.
 
 ```bash
 pip install requests
@@ -31,19 +31,25 @@ python3 places.py "coffee roasters" "Milan, Italy" --max 60 --out places.csv
 | `location` | human-readable, e.g. `"Austin, Texas"`; drives the map viewport |
 | `country` | ISO code — proxy exit and Google locale |
 | `lang` | interface language |
-| `max_results` | 1–100, default 20. You pay only for delivered rows. |
+| `max_results` | 1–300, default 20. You pay only for delivered rows. |
+| `enrich_details` | Default `true`: fills weekly hours and review count per place. Same price. |
 
 ## Output row
 
 ```jsonc
-{ "rank": 1, "name": "Orsonero Coffee", "rating": 4.6, "reviews": 812,
-  "category": "Coffee shop", "price_level": "$$",
-  "address": "Via Giuseppe Broggi, 15, 20129 Milano MI, Italy",
-  "phone": "+39 02 3653 4054", "website": "https://orsonerocoffee.com/",
-  "hours": "Tue-Sun 8:00-17:00", "service_options": "Dine-in · Takeaway",
-  "latitude": 45.4785, "longitude": 9.2065,
-  "place_id": "ChIJ…", "data_id": "0x4786c…:0x…",
-  "maps_url": "https://www.google.com/maps/place/…", "found_by": "local_pack" }
+{ "rank": 1, "name": "Blunn Creek Family Dentistry", "rating": 4.9, "reviews": 179,
+  "category": "Dentist",
+  "address": "2550 South Interstate 35 Frontage Road #210, Austin, TX 78704-5724",
+  "phone": "(512) 442-6728", "website": "https://blunncreekdental.com/",
+  "hours": "Sunday: Closed; Monday: 8 am–5 pm; Tuesday: 8 am–5 pm; …",
+  "weekly_hours": { "Monday": "8 am–5 pm", "Tuesday": "8 am–5 pm", /* one entry per day */ },
+  "open_state": "Closed · Opens 8 AM Mon",
+  "thumbnail": "https://lh3.googleusercontent.com/…",
+  "latitude": 30.230971, "longitude": -97.743781,
+  "place_id": "0x8644b4f1bb0ae061:0x9f022dcd45880329",
+  "data_id": "0x8644b4f1bb0ae061:0x9f022dcd45880329",
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=…",
+  "found_by": "dentist Austin, TX" }
 ```
 
 `data_id` is the handle you pass to [`place_reviews`](https://quanticdata.io/collectors/google-reviews-scraper-api/)
@@ -77,28 +83,35 @@ node places.mjs "dentist" "Austin, TX" 20
 
 ## Sample response
 
-A real run from 4 October 2026: `dentist` in `Austin, TX`, three rows requested. These are public business listings. The rows arrive in `payload.results`; one is shown here and the full capture is in [`sample-response.json`](sample-response.json).
+A real run from 4 October 2026 (collector 1.1.0): `dentist` in `Austin, TX`, 40 rows delivered. These are public business listings. The rows arrive in `payload.results`; the first one is shown here with its main fields, and the first three rows as returned are in [`sample-response.json`](sample-response.json).
 
 ```json
 {
   "rank": 1,
-  "name": "South Austin Dentist",
+  "name": "Blunn Creek Family Dentistry",
   "rating": 4.9,
   "reviews": 179,
   "category": "Dentist",
-  "price_level": null,
-  "address": "3901 S Lamar Blvd Ste 480, Austin, TX 78704",
-  "phone": "(737) 437-3801",
-  "website": "southaustindentisttx.com",
-  "hours": null,
-  "service_options": null,
-  "description": null,
-  "latitude": 30.2372985,
-  "longitude": -97.7902045,
-  "place_id": "0x865b4b5e859f967f:0x38deff12e0bdefcb",
-  "data_id": "0x865b4b5e859f967f:0x38deff12e0bdefcb",
-  "maps_url": "https://www.google.com/maps/search/?api=1&query=South%20Austin%20Dentist%203901%20S%20Lamar%20Blvd%20Ste%20480%2C%20Austin%2C%20TX%2078704",
-  "thumbnail": null,
+  "address": "2550 South Interstate 35 Frontage Road #210, Austin, TX 78704-5724",
+  "phone": "(512) 442-6728",
+  "website": "https://blunncreekdental.com/",
+  "hours": "Sunday: Closed; Monday: 8 am–5 pm; Tuesday: 8 am–5 pm; Wednesday: 8 am–5 pm; Thursday: 8 am–5 pm; Friday: Closed; Saturday: Closed",
+  "weekly_hours": {
+    "Monday": "8 am–5 pm",
+    "Tuesday": "8 am–5 pm",
+    "Wednesday": "8 am–5 pm",
+    "Thursday": "8 am–5 pm",
+    "Friday": "Closed",
+    "Saturday": "Closed",
+    "Sunday": "Closed"
+  },
+  "open_state": "Closed · Opens 8 AM Mon",
+  "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/ANWiy9RZAw2d3hyeJc6fgfmm2NimXQwu1KILunDvfsvCNkO8FFGSZWesggEXTqTFAHh-FQU4xczfYturYN0lpnREt_6qCm0_GKLwBH3Goh9zmjyjV1NoOjoTP8OPZs37NUlMgZBcr1JFCA=k-no-",
+  "maps_url": "https://www.google.com/maps/search/?api=1&query=Blunn%20Creek%20Family%20Dentistry%202550%20South%20Interstate%2035%20Frontage%20Road%20%23210%2C%20Austin%2C%20TX%2078704-5724",
+  "latitude": 30.230971,
+  "longitude": -97.743781,
+  "place_id": "0x8644b4f1bb0ae061:0x9f022dcd45880329",
+  "data_id": "0x8644b4f1bb0ae061:0x9f022dcd45880329",
   "found_by": "dentist Austin, TX"
 }
 ```
